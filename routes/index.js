@@ -7,7 +7,7 @@ const initRoute = (app) => {
     app.use('/api/v1/posts', postRouter)
 
     app.use(notFound)
-    app.use(errorHandler)
+    // app.use(errorHandler)
 }
 
 module.exports = initRoute

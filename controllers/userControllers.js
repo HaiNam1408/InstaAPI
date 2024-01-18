@@ -3,6 +3,8 @@ const asyncHandler = require('express-async-handler')
 const { generateAccessToken, generateRefreshToken } = require('../middlewares/jwt')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const sendMail = require('../utils/sendMail')
+const crypto = require('crypto')
 
 module.exports = userController = {
     getAllUser: asyncHandler(async (req, res) => {
@@ -141,4 +143,45 @@ module.exports = userController = {
             newAccessToken: user ? generateAccessToken(user.id) : "Refresh token not match!"
         })
     }),
+    
+    forgotPassword: asyncHandler(async (req, res) => {
+        const {email} = req.query
+        if(!email) throw new Error('Missing email')
+        const user = await User.findOne({email})
+        if(!user) throw new Error('User not found')
+        const resetToken = user.createPasswordChangedToken()
+        await user.save()
+
+        const html = `Xin vui lòng click vào link dưới đây để thay đổi mật khẩu của bạn.
+        Link này sẽ hết hạn sau 15 phút kể từ bây giờ. <a href=${process.env.URL_SERVER}/api/v1/users/resetpassword/${resetToken}>Click here</a>`
+
+        const data = {
+            email,
+            html
+        }
+        const rs = await sendMail(data)
+        return res.status(200).json({
+            success: true,
+            rs
+        })
+    }),
+
+    resetPassword: asyncHandler(async (req, res) => {
+        const { password, token } = req.body
+        if (!password || !token) throw new Error('Missing inputs')
+        const passwordResetToken = crypto.createHash('sha256').update(token).digest('hex')
+        const user = await User.findOne({ passwordResetToken, passwordTokenExpires: { $gt: Date.now() } })
+        if (!user) throw new Error('Invalid reset token')
+        const salt = await new bcrypt.genSalt(10)
+        const hashed = await new bcrypt.hash(password, salt)
+        user.password = hashed
+        user.passwordResetToken = undefined
+        user.passwordChangedAt = Date.now()
+        user.passwordTokenExpires = undefined
+        await user.save()
+        return res.status(200).json({
+            success: user ? true : false,
+            mes: user ? 'Updated password' : 'Something went wrong'
+        })
+    })
 }

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const crypto = require('crypto')
 
 const { Schema, ObjectId } = mongoose;
 
@@ -28,11 +29,21 @@ const UsersSchema = new Schema({
     gender: { type: String, enum: ['Male', ' Female'] },
     followers: [{ type: Schema.Types.ObjectId, }],
     following: [{ type: Schema.Types.ObjectId, }],
-    posts: [{ type: Schema.Types.ObjectId, }],
+    posts: [{ type: Schema.Types.ObjectId }],
     refreshToken: { type: String },
     passwordChangedAt: { type: String },
     passwordResetToken: { type: String },
+    passwordTokenExpires: { type: String },
 });
+
+UsersSchema.methods = {
+    createPasswordChangedToken: function(){
+        const resetToken = crypto.randomBytes(32).toString('hex')
+        this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex')
+        this.passwordTokenExpires = Date.now() + 5 * 60 * 1000
+        return resetToken
+    }
+}
 
 const Users = mongoose.model('Users', UsersSchema);
 module.exports = Users;

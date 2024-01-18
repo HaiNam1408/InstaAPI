@@ -2,6 +2,8 @@ const router = require('express').Router()
 const userController = require('../controllers/userControllers')
 const { verifyToken } = require('../middlewares/verify')
 
+router.get('/forgotpassword', userController.forgotPassword)
+router.put('/resetpassword', userController.resetPassword)
 router.get('/', userController.getAllUser)
 router.get('/:id', userController.getUserById)
 router.get('/current', verifyToken, userController.getCurrentUser)
