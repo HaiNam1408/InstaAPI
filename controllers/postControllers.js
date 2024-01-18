@@ -7,6 +7,15 @@ module.exports = postController = {
         res.status(200).json(response)
     }),
 
+    getPostById: asyncHandler(async (req, res) => {
+        const { id } = req.params
+        const post = await Post.findById(id)
+        return res.status(200).json({
+            success: post ? true : false,
+            response: post ? post : "Something went wrong!"
+        })
+    }),
+
     create: asyncHandler(async(req,res) => {
         let postData = req.body
         if(req.files) {

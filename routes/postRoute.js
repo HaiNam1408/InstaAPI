@@ -6,6 +6,7 @@ const uploadFile = require('../middlewares/uploadFile')
 const { verifyToken } = require('../middlewares/verify')
 
 router.get('/', postController.getAllPost)
+router.get('/:id', verifyToken, postController.getPostById)
 router.post('/create', verifyToken, uploadFile, postController.create)
 router.put('/:id', verifyToken, uploadFile, handleUpdateFile, postController.update)
 router.delete('/:id', verifyToken, handleDeleteFile, postController.delete)
