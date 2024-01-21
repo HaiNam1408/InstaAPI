@@ -184,7 +184,7 @@ module.exports = userController = {
     await user.save();
 
     const html = `Xin vui lòng click vào link dưới đây để thay đổi mật khẩu của bạn.
-        Link này sẽ hết hạn sau 5 phút kể từ bây giờ. <a href=http://localhost:5173/resetpassword/${resetToken}>Click here</a>`;
+        Link này sẽ hết hạn sau 5 phút kể từ bây giờ. <a href=${process.env.URL_DEPLOY}/resetpassword/${resetToken}>Click here</a>`;
 
     const data = {
       email,
