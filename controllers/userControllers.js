@@ -196,6 +196,7 @@ module.exports = userController = {
     const rs = await sendMail(data);
     return res.status(200).json({
       success: true,
+      token: resetToken,
       rs,
     });
   }),
