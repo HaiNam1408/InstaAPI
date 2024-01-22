@@ -43,8 +43,8 @@ module.exports = postController = {
       user.posts.push(newPost.id);
       user.save();
       return res.status(200).json({
-        success: postData ? true : false,
-        data: postData ? postData : "wrong!",
+        success: newPost ? true : false,
+        data: newPost ? newPost : "wrong!",
       });
     } else {
       return res.status(200).json({
